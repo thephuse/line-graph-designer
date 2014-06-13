@@ -19,7 +19,7 @@
     width: 100%;
     font-size: 14px;
     line-height: 1;
-    margin: 20px 0;
+    margin: 20px 0 0;
   }
 
   #canvas-container {
@@ -71,6 +71,30 @@
 
   canvas {
     cursor: pointer;
+  }
+
+  footer {
+    overflow: hidden;
+    margin-top: 30px;
+    padding-top: 8px;
+    font-size: 11px;
+    background: #444;
+    color: #fff;
+    text-align: center;
+    width: 100%;
+  }
+
+  footer li {
+    margin-bottom: 8px;
+  }
+
+  a, a:visited {
+    color: #99ca00;
+    text-decoration: none;
+  }
+
+  a:hover {
+    text-decoration: underline;
   }
   </style>
 </head>
@@ -128,6 +152,14 @@
     </li>
   </ul>
 </fieldset>
+
+<footer>
+  <ul>
+    <li><b>This is a <a href="http://thephuse.com/" target="_blank">Phuse</a> designer's tool!</b></li>
+    <li>Thanks to Martijn van der Lee for his wonderful <a href="https://github.com/vanderlee/colorpicker" target="_blank">jQuery ColorPicker</a></li>
+    <li>A big thank-you to Nick Downie for the brilliant <a href="https://github.com/nnnick/Chart.js" target="_blank">Chart.js</a> library</li>
+  </ul>
+</footer>
 
 <script id="series" type="text/json"></script>
 
