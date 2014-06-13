@@ -52,6 +52,20 @@
     width: 160px;
     margin: 0 0 12px;
   }
+
+  textarea {
+    width: 100%;
+    height: 400px;
+    font-size: 11px;
+  }
+
+  h3 {
+    text-align: center;
+  }
+
+  canvas {
+    cursor: pointer;
+  }
   </style>
 </head>
 <body>
@@ -60,7 +74,15 @@
   <canvas width="900" height="400"></canvas>
 </div>
 
+<h3>Click graph to save as PNG</h3>
+
 <fieldset>
+
+  <ul>
+    <li><label for="width">X Series</label><input type="text" id="x" value="YEAR"></li>
+    <li><label for="height">Y Series</label><input type="text" id="y" value="American Retirements"></li>
+  </ul>
+
   <ul>
     <li><label for="width">Width</label><input type="number" id="width" min="200" max="1920" value="900"></li>
     <li><label for="height">Height</label><input type="number" id="height" min="200" max="1920" value="400"></li>
@@ -70,51 +92,42 @@
     <li><label for="pointstroke">Point Stroke Color</label><input type="text" class="color" id="pointstroke" value=""></li>
     <li><label for="gridlines">Show gridlines?</label><input type="checkbox" id="gridlines" value="true" checked></li>
   </ul>
+
+  <ul>
+    <li>
+      <label for="json">JSON Dump</label><br>
+<textarea id="json">[
+  {"YEAR":2013,"American Retirements":178},
+  {"YEAR":2014,"American Retirements":254},
+  {"YEAR":2015,"American Retirements":285},
+  {"YEAR":2016,"American Retirements":341},
+  {"YEAR":2017,"American Retirements":424},
+  {"YEAR":2018,"American Retirements":562},
+  {"YEAR":2019,"American Retirements":692},
+  {"YEAR":2020,"American Retirements":796},
+  {"YEAR":2021,"American Retirements":830},
+  {"YEAR":2022,"American Retirements":870},
+  {"YEAR":2023,"American Retirements":1003},
+  {"YEAR":2024,"American Retirements":956},
+  {"YEAR":2025,"American Retirements":942},
+  {"YEAR":2026,"American Retirements":705},
+  {"YEAR":2027,"American Retirements":595},
+  {"YEAR":2028,"American Retirements":512},
+  {"YEAR":2029,"American Retirements":474},
+  {"YEAR":2030,"American Retirements":414},
+  {"YEAR":2031,"American Retirements":434},
+  {"YEAR":2032,"American Retirements":385},
+  {"YEAR":2033,"American Retirements":368}
+]</textarea>
+    </li>
+  </ul>
 </fieldset>
 
-<script id="series" type="text/json">
-[{"YEAR":2013,"American Retirements":178},
-{"YEAR":2014,"American Retirements":254},
-{"YEAR":2015,"American Retirements":285},
-{"YEAR":2016,"American Retirements":341},
-{"YEAR":2017,"American Retirements":424},
-{"YEAR":2018,"American Retirements":562},
-{"YEAR":2019,"American Retirements":692},
-{"YEAR":2020,"American Retirements":796},
-{"YEAR":2021,"American Retirements":830},
-{"YEAR":2022,"American Retirements":870},
-{"YEAR":2023,"American Retirements":1003},
-{"YEAR":2024,"American Retirements":956},
-{"YEAR":2025,"American Retirements":942},
-{"YEAR":2026,"American Retirements":705},
-{"YEAR":2027,"American Retirements":595},
-{"YEAR":2028,"American Retirements":512},
-{"YEAR":2029,"American Retirements":474},
-{"YEAR":2030,"American Retirements":414},
-{"YEAR":2031,"American Retirements":434},
-{"YEAR":2032,"American Retirements":385},
-{"YEAR":2033,"American Retirements":368},
-{"YEAR":2034,"American Retirements":240},
-{"YEAR":2035,"American Retirements":240},
-{"YEAR":2036,"American Retirements":240},
-{"YEAR":2037,"American Retirements":240},
-{"YEAR":2038,"American Retirements":240},
-{"YEAR":2039,"American Retirements":240},
-{"YEAR":2040,"American Retirements":240},
-{"YEAR":2041,"American Retirements":240},
-{"YEAR":2042,"American Retirements":240},
-{"YEAR":2043,"American Retirements":240},
-{"YEAR":2044,"American Retirements":240},
-{"YEAR":2045,"American Retirements":240},
-{"YEAR":2046,"American Retirements":240},
-{"YEAR":2047,"American Retirements":240},
-{"YEAR":2048,"American Retirements":240},
-{"YEAR":2049,"American Retirements":241}]
-</script>
+<script id="series" type="text/json"></script>
 
 <script>
 
-  var ctx           = $('canvas').get(0).getContext('2d');
+  var ctx = $('canvas').get(0).getContext('2d');
 
   var makeChart = (function() { 
 
@@ -123,23 +136,40 @@
       'height'  : settings.height + 'px'
     });
 
-    var json          = JSON.parse($('#series').html());
-    var years         = [];
-    var retirements   = [];
+    try {
+      var json          = JSON.parse($('#json').val());
+    } catch(error) {
+      console.error('JSON error: '+error.message);
+      return;
+    }
+
+    var x = [];
+    var y = [];
 
     for(var i = 0; i < json.length; i++) {
-      years.push(json[i]["YEAR"]);
-      retirements.push(json[i]["American Retirements"]);
+
+      try {
+        x.push(json[i][settings.x]);
+      } catch(error) {
+        console.error('X Series: '+error.message);
+      }
+
+      try {
+        y.push(json[i][settings.y]);
+      } catch(error) {
+        console.error('X Series: '+error.message);
+      }
+
     }
 
     var data = {
-      labels : years,
+      labels : x,
       datasets : [{
         fillColor : settings.color.fill,
         strokeColor : settings.color.stroke,
         pointColor : settings.color.point,
         pointStrokeColor : settings.color.pointstroke,
-        data : retirements
+        data : y
       }]
     }
 
@@ -157,11 +187,13 @@
       colorFormat: 'RGBA'
     });
 
-    $('fieldset input').on('change blur', function() {
+    $('fieldset input, fieldset textarea').on('change blur', function() {
 
       var $this = $(this);
 
       settings = {
+        x : $('#x').val(),
+        y : $('#y').val(),
         width : parseInt($('#width').val()) || 900,
         height : parseInt($('#height').val()) || 400,
         color : {
@@ -181,6 +213,11 @@
     });
 
     $('fieldset input').trigger('change');
+
+    $('canvas').on('click', function() {
+      var $this = $(this)[0];
+      window.open($this.toDataURL("image/png"));
+    });
 
   });
 
