@@ -1,0 +1,190 @@
+<!doctype html>
+<html>
+<head>
+  <title>Chart demo</title>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/0.2.0/Chart.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/2.1.1/jquery.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jqueryui/1.10.4/jquery-ui.min.js"></script>
+  <script src="colpick.js"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/jqueryui/1.10.4/css/jquery-ui.min.css">
+  <link rel="stylesheet" href="colpick.css">
+  <style>
+  html {
+    width: 100%;
+  }
+
+  body {
+    font-family: Arial, Helvetica, sans-serif;
+    color: #666;
+    width: 100%;
+    font-size: 14px;
+    line-height: 1;
+    margin: 20px 0;
+  }
+
+  #canvas-container {
+    width: 100%;
+    overflow-y: hidden;
+    overflow-x: auto;
+  }
+
+  canvas {
+    display: block;
+    margin: 0 auto;
+  }
+
+  fieldset {
+    border: 1px solid #ddd;
+    display: block;
+    width: 400px;
+    padding: 20px;
+    margin: 50px auto 0;
+  }
+
+  ul {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+  }
+
+  label {
+    display: inline-block;
+    width: 160px;
+    margin: 0 0 12px;
+  }
+  </style>
+</head>
+<body>
+
+<div id="canvas-container">
+  <canvas width="900" height="400"></canvas>
+</div>
+
+<fieldset>
+  <ul>
+    <li><label for="width">Width</label><input type="number" id="width" min="200" max="1920" value="900"></li>
+    <li><label for="height">Height</label><input type="number" id="height" min="200" max="1920" value="400"></li>
+    <li><label for="fill">Fill Color</label><input type="text" class="color" id="fill" value=""></li>
+    <li><label for="stroke">Stroke Color</label><input type="text" class="color" id="stroke" value=""></li>
+    <li><label for="point">Point Color</label><input type="text" class="color" id="point" value=""></li>
+    <li><label for="pointstroke">Point Stroke Color</label><input type="text" class="color" id="pointstroke" value=""></li>
+    <li><label for="gridlines">Show gridlines?</label><input type="checkbox" id="gridlines" value="true" checked></li>
+  </ul>
+</fieldset>
+
+<script id="series" type="text/json">
+[{"YEAR":2013,"American Retirements":178},
+{"YEAR":2014,"American Retirements":254},
+{"YEAR":2015,"American Retirements":285},
+{"YEAR":2016,"American Retirements":341},
+{"YEAR":2017,"American Retirements":424},
+{"YEAR":2018,"American Retirements":562},
+{"YEAR":2019,"American Retirements":692},
+{"YEAR":2020,"American Retirements":796},
+{"YEAR":2021,"American Retirements":830},
+{"YEAR":2022,"American Retirements":870},
+{"YEAR":2023,"American Retirements":1003},
+{"YEAR":2024,"American Retirements":956},
+{"YEAR":2025,"American Retirements":942},
+{"YEAR":2026,"American Retirements":705},
+{"YEAR":2027,"American Retirements":595},
+{"YEAR":2028,"American Retirements":512},
+{"YEAR":2029,"American Retirements":474},
+{"YEAR":2030,"American Retirements":414},
+{"YEAR":2031,"American Retirements":434},
+{"YEAR":2032,"American Retirements":385},
+{"YEAR":2033,"American Retirements":368},
+{"YEAR":2034,"American Retirements":240},
+{"YEAR":2035,"American Retirements":240},
+{"YEAR":2036,"American Retirements":240},
+{"YEAR":2037,"American Retirements":240},
+{"YEAR":2038,"American Retirements":240},
+{"YEAR":2039,"American Retirements":240},
+{"YEAR":2040,"American Retirements":240},
+{"YEAR":2041,"American Retirements":240},
+{"YEAR":2042,"American Retirements":240},
+{"YEAR":2043,"American Retirements":240},
+{"YEAR":2044,"American Retirements":240},
+{"YEAR":2045,"American Retirements":240},
+{"YEAR":2046,"American Retirements":240},
+{"YEAR":2047,"American Retirements":240},
+{"YEAR":2048,"American Retirements":240},
+{"YEAR":2049,"American Retirements":241}]
+</script>
+
+<script>
+
+  var ctx           = $('canvas').get(0).getContext('2d');
+
+  var makeChart = (function() { 
+
+    $('canvas').empty().attr({
+      'width'   : settings.width + 'px',
+      'height'  : settings.height + 'px'
+    });
+
+    var json          = JSON.parse($('#series').html());
+    var years         = [];
+    var retirements   = [];
+
+    for(var i = 0; i < json.length; i++) {
+      years.push(json[i]["YEAR"]);
+      retirements.push(json[i]["American Retirements"]);
+    }
+
+    var data = {
+      labels : years,
+      datasets : [{
+        fillColor : settings.color.fill,
+        strokeColor : settings.color.stroke,
+        pointColor : settings.color.point,
+        pointStrokeColor : settings.color.pointstroke,
+        data : retirements
+      }]
+    }
+
+    new Chart(ctx).Line(data, {
+      scaleShowGridLines : settings.gridlines
+    });
+
+  });
+
+  jQuery(function($) {
+
+    $('.color').colorpicker({
+      parts:  ['header', 'map', 'bar', 'hex', 'hsv', 'rgb', 'alpha', 'preview', 'swatches', 'footer'],
+      alpha:  true,
+      colorFormat: 'RGBA'
+    });
+
+    $('fieldset input').on('change blur', function() {
+
+      var $this = $(this);
+
+      settings = {
+        width : parseInt($('#width').val()) || 900,
+        height : parseInt($('#height').val()) || 400,
+        color : {
+          fill : $('#fill').val() || 'rgba(220,220,220,0.5)',
+          stroke : $('#stroke').val() || 'rgba(220,220,220,1)',
+          point : $('#point').val() || 'rgba(220,220,220,1)',
+          pointstroke : $('#pointstroke').val() || 'rgba(255,255,255,1)'
+        },
+        gridlines : ($('#gridlines')[0].checked === true ? true : false)
+      };
+
+      if($this.attr('min') && parseInt($this.val()) < parseInt($this.attr('min'))) $this.val($this.attr('min'));
+      if($this.attr('max') && parseInt($this.val()) > parseInt($this.attr('max'))) $this.val($this.attr('max'));
+
+      makeChart();
+
+    });
+
+    $('fieldset input').trigger('change');
+
+  });
+
+</script>
+
+</body>
+</html>
